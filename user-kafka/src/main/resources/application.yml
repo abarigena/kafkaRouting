@@ -1,0 +1,57 @@
+spring:
+  application:
+    name: user-kafka
+  datasource:
+    username: postgres
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  profiles:
+    active: ${ACTIVE_PROFILE:local}
+
+server:
+  port: 8003
+
+springdoc:
+  swagger-ui:
+    urls:
+      - url: /v3/api-docs
+        name: USER-KAFKA Service
+  api-docs:
+    enabled: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: jdbc:postgresql://localhost:5432/userkafka
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8100/eureka
+  instance:
+    instance-id: user-instance
+
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+  datasource:
+    url: jdbc:postgresql://postgres:5432/userkafka
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8100/eureka
+  instance:
+    instance-id: user-instance
+    prefer-ip-address: true

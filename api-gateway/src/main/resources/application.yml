@@ -1,0 +1,100 @@
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        # Маршруты для документации Swagger
+        - id: matchconsents-swagger
+          uri: lb://matchconsents
+          predicates:
+            - Path=/matchconsents/v3/api-docs/**
+
+        - id: notification-kafka-swagger
+          uri: lb://notification-kafka
+          predicates:
+            - Path=/notification-kafka/v3/api-docs/**
+
+        - id: routing-kafka-swagger
+          uri: lb://routing-kafka
+          predicates:
+            - Path=/routing-kafka/v3/api-docs/**
+
+        - id: user-kafka-swagger
+          uri: lb://user-kafka
+          predicates:
+            - Path=/user-kafka/v3/api-docs/**
+
+        - id: orders-kafka-swagger
+          uri: lb://orders-kafka
+          predicates:
+            - Path=/orders-kafka/v3/api-docs/**
+
+
+        # Маршруты для микросервисов
+        - id: matchconsents-service
+          uri: lb://matchconsents
+          predicates:
+            - Path=/matchconsents/api/**
+          filters:
+            - RewritePath=/matchconsents/(?<segment>.*), /$\{segment}
+
+        - id: notification-kafka-service
+          uri: lb://notification-kafka
+          predicates:
+            - Path=/notification-kafka/api/**
+          filters:
+            - RewritePath=/notification-kafka/(?<segment>.*), /$\{segment}
+
+        - id: routing-kafka-service
+          uri: lb://routing-kafka
+          predicates:
+            - Path=/routing-kafka/api/**
+          filters:
+            - RewritePath=/routing-kafka/(?<segment>.*), /$\{segment}
+
+        - id: user-kafka-service
+          uri: lb://user-kafka
+          predicates:
+            - Path=/user-kafka/api/**
+          filters:
+            - RewritePath=/user-kafka/(?<segment>.*), /$\{segment}
+
+        - id: orders-kafka-service
+          uri: lb://orders-kafka
+          predicates:
+            - Path=/orders-kafka/api/**
+          filters:
+            - RewritePath=/orders-kafka/(?<segment>.*), /$\{segment}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - url: /v3/api-docs
+        name: API Gateway
+      - url: /matchconsents/v3/api-docs
+        name: MATCHCONSENTS Service
+      - url: /notification-kafka/v3/api-docs
+        name: NOTIFICATION-KAFKA Service
+      - url: /routing-kafka/v3/api-docs
+        name: ROUTING-KAFKA Service
+      - url: /user-kafka/v3/api-docs
+        name: USER-KAFKA Service
+      - url: /orders-kafka/v3/api-docs
+        name: ORDERS-KAFKA Service
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8100/eureka
+  instance:
+    instance-id: gateway-instance
+server:
+  port: 8004

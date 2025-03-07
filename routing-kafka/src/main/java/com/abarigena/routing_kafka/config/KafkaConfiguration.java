@@ -1,6 +1,6 @@
 package com.abarigena.routing_kafka.config;
 
-import com.example.commondto.dto.RequestDTO;
+import com.example.commondto.dto.NotificationRequestDTO;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -22,8 +22,11 @@ public class KafkaConfiguration {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
+    public static final String USER_REQUEST_TOPIC = "user-request";
+    public static final String DRIVER_REQUEST_TOPIC = "driver-request";
+
     @Bean
-    public ProducerFactory<String, RequestDTO> producerFactory() {
+    public ProducerFactory<String, NotificationRequestDTO> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -45,12 +48,23 @@ public class KafkaConfiguration {
     }
 
     @Bean
-    public KafkaTemplate<String, RequestDTO> kafkaTemplate() {
+    public KafkaTemplate<String, NotificationRequestDTO> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 
     @Bean
-    public NewTopic routingTopic() {
-        return TopicBuilder.name("request").build();
+    public NewTopic userRequestTopic() {
+        return TopicBuilder.name(USER_REQUEST_TOPIC)
+                .partitions(3)
+                .replicas(1)
+                .build();
+    }
+
+    @Bean
+    public NewTopic driverRequestTopic() {
+        return TopicBuilder.name(DRIVER_REQUEST_TOPIC)
+                .partitions(3)
+                .replicas(1)
+                .build();
     }
 }

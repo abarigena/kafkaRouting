@@ -1,0 +1,65 @@
+spring:
+  application:
+    name: matchconsents
+  datasource:
+    username: postgres
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  profiles:
+    active: ${ACTIVE_PROFILE:local}
+
+server:
+  port: 8011
+
+springdoc:
+  swagger-ui:
+    urls:
+      - url: /v3/api-docs
+        name: MATCHCONSENTS Service
+  api-docs:
+    enabled: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: jdbc:postgresql://localhost:5432/matchconsents
+  kafka:
+    bootstrap-servers: localhost:19092
+    consumer:
+      group-id: match
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8100/eureka
+  instance:
+    instance-id: match-instance
+
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+  datasource:
+    url: jdbc:postgresql://postgres:5432/matchconsents
+  kafka:
+    bootstrap-servers: kafka:9092
+    consumer:
+      group-id: match
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8100/eureka
+  instance:
+    instance-id: match-instance
+    prefer-ip-address: true

@@ -9,8 +9,7 @@ public class Route {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @ManyToOne
-    private Driver driver;
+    private Long driverId;
 
     private String cityStart;
 
@@ -34,12 +33,12 @@ public class Route {
         this.cityEnd = city_end;
     }
 
-    public Driver getDriver() {
-        return driver;
+    public Long getDriverId() {
+        return driverId;
     }
 
-    public void setDriver(Driver driver) {
-        this.driver = driver;
+    public void setDriverId(Long driverId) {
+        this.driverId = driverId;
     }
 
     public Double getPrice() {
@@ -56,5 +55,16 @@ public class Route {
 
     public Long getId() {
         return id;
+    }
+
+    @Override
+    public String toString() {
+        return "Route{" +
+                "id=" + id +
+                ", driverId=" + driverId +
+                ", cityStart='" + cityStart + '\'' +
+                ", cityEnd='" + cityEnd + '\'' +
+                ", price=" + price +
+                '}';
     }
 }

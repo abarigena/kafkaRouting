@@ -1,6 +1,7 @@
 package com.abarigena.routing_kafka.service;
 
-import com.example.commondto.dto.RequestDTO;
+import com.abarigena.routing_kafka.config.KafkaConfiguration;
+import com.example.commondto.dto.NotificationRequestDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,31 +18,41 @@ import java.util.concurrent.CompletableFuture;
 public class KafkaProducer {
     private Logger logger = LoggerFactory.getLogger(KafkaProducer.class);
 
-    private final KafkaTemplate<String, RequestDTO> kafkaTemplate;
+    private final KafkaTemplate<String, NotificationRequestDTO> kafkaTemplate;
 
     @Autowired
-    public KafkaProducer(KafkaTemplate<String, RequestDTO> kafkaTemplate) {
+    public KafkaProducer(KafkaTemplate<String, NotificationRequestDTO> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void send(RequestDTO requestDTO) {
+    public void sendUserRequest(NotificationRequestDTO requestDTO) {
+        sendMessage(requestDTO, KafkaConfiguration.USER_REQUEST_TOPIC);
+    }
 
-        logger.info("Sending request to {}", requestDTO);
+    public void sendDriverRequest(NotificationRequestDTO requestDTO) {
+        sendMessage(requestDTO, KafkaConfiguration.DRIVER_REQUEST_TOPIC);
+    }
 
-        Message<RequestDTO> message = MessageBuilder
+    public void sendMessage(NotificationRequestDTO requestDTO, String topic) {
+
+        logger.info("Sending request to topic {}: {}", topic, requestDTO);
+
+        Message<NotificationRequestDTO> message = MessageBuilder
                 .withPayload(requestDTO)
-                .setHeader(KafkaHeaders.TOPIC, "request")
-                .setHeader("__TypeId__", RequestDTO.class.getName())
+                .setHeader(KafkaHeaders.TOPIC, topic)
+                .setHeader("__TypeId__", NotificationRequestDTO.class.getName())
                 .build();
 
-        CompletableFuture<SendResult<String, RequestDTO>> future = kafkaTemplate.send(message);
+        CompletableFuture<SendResult<String, NotificationRequestDTO>> future = kafkaTemplate.send(message);
 
         future.whenComplete((result, ex) -> {
             if (ex == null) {
-                logger.info("Message sent successfully to topic: request, partition: {}, offset: {}",
-                        result.getRecordMetadata().partition(), result.getRecordMetadata().offset());
-            }else {
-                logger.error("Unable to send message: {}", ex.getMessage());
+                logger.info("Message sent successfully to topic: {}, partition: {}, offset: {}",
+                        topic,
+                        result.getRecordMetadata().partition(),
+                        result.getRecordMetadata().offset());
+            } else {
+                logger.error("Unable to send message to topic {}: {}", topic, ex.getMessage());
             }
         });
     }

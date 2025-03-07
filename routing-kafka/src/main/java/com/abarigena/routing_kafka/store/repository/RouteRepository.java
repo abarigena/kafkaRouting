@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RouteRepository extends CrudRepository<Route, Long> {
+    Route findByCityStartAndCityEndAndPriceAndDriverId(String cityStart, String cityEnd, Double price, Long driverId);
 }

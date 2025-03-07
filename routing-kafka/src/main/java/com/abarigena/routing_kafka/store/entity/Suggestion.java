@@ -9,8 +9,7 @@ public class Suggestion {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @ManyToOne
-    private User user;
+    private Long userId;
 
     private String cityStart;
 
@@ -18,12 +17,12 @@ public class Suggestion {
 
     private Double price;
 
-    public User getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getCityStart() {
@@ -56,5 +55,16 @@ public class Suggestion {
 
     public Long getId() {
         return id;
+    }
+
+    @Override
+    public String toString() {
+        return "Suggestion{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", cityStart='" + cityStart + '\'' +
+                ", cityEnd='" + cityEnd + '\'' +
+                ", price=" + price +
+                '}';
     }
 }
